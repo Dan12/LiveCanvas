@@ -4,14 +4,28 @@ $(".canvas").ready(function(){
   
   var c = document.getElementById("myCanvas");
   var canvas = c.getContext("2d");
+
+  var d = new Date();
+  
+  var imgPath = $(".data").data("pathToAsset");
+  console.log(imgPath);
+  
+  var img = new Image();
+  img.src = imgPath;
+  
+  $('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png?"+d.getTime());
   
   canvas.fillStyle = "Green";
   canvas.font = 15+"px Arial";
   canvas.fillText("Draw Some Stuff", 20,20);
+ 
+  img.onload = function () {
+    canvas.drawImage(img,0,0);
+  }
 
   var clicks = new Array();
   var clickDrag = new Array();
-  var paint;
+  var paint = false;
   var rgb = [223,75,38];
   
   $('.rInput').val(rgb[0]);
@@ -26,6 +40,7 @@ $(".canvas").ready(function(){
   function redraw(){
     canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height); // Clears the canvas
 
+    canvas.drawImage(img,0,0);
     setRGB();
     canvas.lineJoin = "round";
     canvas.lineWidth = 5;
@@ -51,8 +66,8 @@ $(".canvas").ready(function(){
     rgb[2] = parseInt($('.bInput').val());
   }
   
-  $('.button').click(function(){
-    var dataURL =  c.toDataURL('image/png');
+  $('.send_button').click(function(){
+    var dataURL = c.toDataURL('image/png');
     $.ajax({
         type: "POST",
         url: "/sendPNG",
@@ -63,6 +78,14 @@ $(".canvas").ready(function(){
             alert("Error=" + errorThrown);
         }
     });
+    //$('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png");
+  });
+  
+  $('.reload_button').click(function(){
+    $('.gotImg img').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+    setTimeout(function(){
+      $('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png?timestamp="+d.getTime());
+    },1000);
   });
     
   $('#myCanvas').mousedown(function(e){

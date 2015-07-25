@@ -6,4 +6,9 @@
   B: <input type = "text" class = "bInput"><br>
 </form>
 
-<div class = "button">Send</div>
+<div class = "send_button button">Send</div>
+<div class = "reload_button button">Reload</div>
+
+<div class = "gotImg"><img src = ""></div>
+
+<%= content_tag(:div, "", class: 'data', data:{path_to_asset: asset_path("canvasImg.png")}) %>
