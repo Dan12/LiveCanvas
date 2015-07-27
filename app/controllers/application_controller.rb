@@ -3,12 +3,25 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   
+  $searchSuccess = false
+  
+  helper_method :setSuccess
+  helper_method :getSuccess
+  
+  def setSuccess(s)
+    searchSuccess = s
+  end
+  
+  def getSuccess
+    return searchSuccess
+  end
+  
   def index
     render 'index'
   end
   
   def processpng
-    require 'base64'
+    #require 'base64'
     
     data = params['png']
     #remove all extras except data
@@ -18,21 +31,31 @@ class ApplicationController < ActionController::Base
       f.write image_data
     end
     Thread.new do
+      $searchSuccess = false
+      puts "Getting search output"
       output = `node /home/nitrous/code/Desktop/Rails_Apps/livecanvas/app/assets/javascripts/nodeJS/search.js`
+      puts "Got search output"
       if(output.split("\n")[0] != "none")
         image_data = Base64.decode64(output)
         File.open("#{Rails.root}/app/assets/images/imgSearch.png", 'wb') do |f|
           f.write image_data
         end
-        puts ""
-        puts output
+        puts "Search was a success"
+        #puts output
+        $searchSuccess = true
       else
         File.open("#{Rails.root}/public/temp/index.html", 'wb') do |f|
           f.write output[4..-1]
         end
+        puts "Search was a failure"
       end
     end
+    #render :json => {"canvasImg" => ActionController::Base.helpers.asset_path('canvasImg.png'), "imgSearch" => ActionController::Base.helpers.asset_path('imgSearch.png')}
     render 'index'
     #redirect_to :back
+  end
+  
+  def returnpngs
+    render :json => {"canvasImg" => ActionController::Base.helpers.asset_path('canvasImg.png'), "imgSearch" => ActionController::Base.helpers.asset_path('imgSearch.png'), "searchSuccess" => $searchSuccess}
   end
 end

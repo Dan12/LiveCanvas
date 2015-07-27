@@ -8,7 +8,11 @@
 
 <div class = "send_button button">Send</div>
 <div class = "reload_button button">Reload</div>
+<div class = "clear_button button">Clear</div>
 
-<div class = "gotImg"><img src = ""></div>
+<div class = "imgs">
+  <img class = "canvasImg" src = "" width = "500px" height = "500px">
+  <img class = "searchImg" src = "" width = "500px" height = "500px">
+</div>
 
-<%= content_tag(:div, "", class: 'data', data:{path_to_asset: asset_path("canvasImg.png")}) %>
+<%= content_tag(:div, "", class: 'data', data:{path_to_asset: asset_path("canvasImg.png"), path_to_asset2: asset_path("imgSearch.png")}) %>

@@ -8,12 +8,19 @@ $(".canvas").ready(function(){
   var d = new Date();
   
   var imgPath = $(".data").data("pathToAsset");
-  console.log(imgPath);
+  var img2Path = $(".data").data("pathToAsset2");
+  var drawImage = true;
+  //console.log(imgPath+"\n"+img2Path);
   
   var img = new Image();
   img.src = imgPath;
+  var imgCanvas = new Image();
+  imgCanvas.src = imgPath;
+  var imgSearch = new Image();
+  imgSearch.src = img2Path;
   
-  $('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png?"+d.getTime());
+  $('.canvasImg').attr("src", imgCanvas.src);
+  $('.searchImg').attr("src", imgSearch.src);
   
   canvas.fillStyle = "Green";
   canvas.font = 15+"px Arial";
@@ -40,7 +47,9 @@ $(".canvas").ready(function(){
   function redraw(){
     canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height); // Clears the canvas
 
-    canvas.drawImage(img,0,0);
+    if(drawImage)
+      canvas.drawImage(img,0,0);
+    
     setRGB();
     canvas.lineJoin = "round";
     canvas.lineWidth = 5;
@@ -66,6 +75,44 @@ $(".canvas").ready(function(){
     rgb[2] = parseInt($('.bInput').val());
   }
   
+  function getOtherImage(){
+    $.ajax({
+        type: "POST",
+        url: "/getPNGS",
+        data: {},
+        success: function(data, textStatus, jqXHR) {
+          //console.log("Data: "+data);
+          //console.log(textStatus);
+          console.log(jqXHR);
+          imgCanvas.src = jqXHR.responseJSON.canvasImg;
+          imgSearch.src = jqXHR.responseJSON.imgSearch;
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert("Error=" + errorThrown);
+        }
+    });
+    paint = false;
+    $(c).hide();
+    canvas.clear
+    //combine images
+    //img.src = c.toDataURL('image/png');
+    $(c).show();
+  }
+  
+  function imageTimeout(){
+    setTimeout(function(){
+      getOtherImage();
+    },20000);
+  };
+  
+  $('.clear_button').click(function(){
+    canvas.clear;
+    var clicks = new Array();
+    var clickDrag = new Array();
+    drawImage = false;
+    redraw();
+  });
+  
   $('.send_button').click(function(){
     var dataURL = c.toDataURL('image/png');
     $.ajax({
@@ -73,6 +120,10 @@ $(".canvas").ready(function(){
         url: "/sendPNG",
         data: {png: dataURL},
         success: function(data, textStatus, jqXHR) {
+          //console.log("Data: "+data);
+          //console.log(textStatus);
+          console.log(jqXHR);
+          imageTimeout();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert("Error=" + errorThrown);
@@ -82,9 +133,11 @@ $(".canvas").ready(function(){
   });
   
   $('.reload_button').click(function(){
-    $('.gotImg img').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+    $('.canvasImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+    $('.searchImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
     setTimeout(function(){
-      $('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png?timestamp="+d.getTime());
+      $('.canvasImg').attr("src", imgCanvas.src);
+      $('.searchImg').attr("src", imgSearch.src);
     },1000);
   });
     
