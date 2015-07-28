@@ -18,12 +18,22 @@ request(options, function (err, res, body) {
     i = body.indexOf("base64",i+1);
     i+=7;
     var e = body.indexOf("]",i);
-    console.log((body.substring(i,e)).replace("\\u003d", "="));
+    console.log(body.substring(i,e-1));
+    e = getResults(body, e);
+    e = getResults(body, e);
   }
   else
     console.log("none\n"+body);
   //getBase64(body);
 });
+
+function getResults(body, e){
+  var i = body.indexOf("base64",e);
+  i+=7;
+  var e = body.indexOf("]",i);
+  console.log((body.substring(i,e)).replace("\\u003d", "="));
+  return e;
+}
 
 function getBase64(body){
   var i = 0;

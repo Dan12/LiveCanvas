@@ -8,7 +8,10 @@ $(".canvas").ready(function(){
   var d = new Date();
   
   var imgPath = $(".data").data("pathToAsset");
-  var img2Path = $(".data").data("pathToAsset2");
+  var searchPaths = [];
+  for(var i = 0; i < 3; i++){
+    searchPaths[i] = $(".data").data("pathToAsset"+(i+2));
+  }
   var drawImage = true;
   //console.log(imgPath+"\n"+img2Path);
   
@@ -16,15 +19,15 @@ $(".canvas").ready(function(){
   img.src = imgPath;
   var imgCanvas = new Image();
   imgCanvas.src = imgPath;
-  var imgSearch = new Image();
-  imgSearch.src = img2Path;
+  var imgSearch = [];
+  for(var i = 0; i < 3; i++){
+    imgSearch[i] = new Image();
+    imgSearch[i].src = searchPaths[i];
+  }
   
   $('.canvasImg').attr("src", imgCanvas.src);
-  $('.searchImg').attr("src", imgSearch.src);
-  
-  canvas.fillStyle = "Green";
-  canvas.font = 15+"px Arial";
-  canvas.fillText("Draw Some Stuff", 20,20);
+  for(var i in imgSearch)
+    $('.searchImg'+i).attr("src", imgSearch[i].src);
  
   img.onload = function () {
     canvas.drawImage(img,0,0);
@@ -85,23 +88,26 @@ $(".canvas").ready(function(){
           //console.log(textStatus);
           console.log(jqXHR);
           imgCanvas.src = jqXHR.responseJSON.canvasImg;
-          imgSearch.src = jqXHR.responseJSON.imgSearch;
+          imgSearch[0].src = jqXHR.responseJSON.imgSearch0;
+          imgSearch[1].src = jqXHR.responseJSON.imgSearch1;
+          imgSearch[2].src = jqXHR.responseJSON.imgSearch2;
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert("Error=" + errorThrown);
         }
     });
     paint = false;
-    $(c).hide();
-    canvas.clear
+    //$(c).hide();
+    //canvas.clear
     //combine images
     //img.src = c.toDataURL('image/png');
-    $(c).show();
+    //$(c).show();
   }
   
   function imageTimeout(){
     setTimeout(function(){
       getOtherImage();
+      reload();
     },20000);
   };
   
@@ -132,14 +138,16 @@ $(".canvas").ready(function(){
     //$('.gotImg img').attr("src","http://ruby-on-rails-114302.nitrousapp.com:3000/assets/canvasImg.png");
   });
   
-  $('.reload_button').click(function(){
-    $('.canvasImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
-    $('.searchImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
-    setTimeout(function(){
-      $('.canvasImg').attr("src", imgCanvas.src);
-      $('.searchImg').attr("src", imgSearch.src);
-    },1000);
-  });
+   $('.reload_button').click(function(){
+      $('.canvasImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+      for(var i in imgSearch)
+        $('.searchImg'+i).attr("src", "http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+      setTimeout(function(){
+        $('.canvasImg').attr("src", imgCanvas.src);
+        for(var i in imgSearch)
+          $('.searchImg'+i).attr("src", imgSearch[i].src);
+      },1000);
+    });
     
   $('#myCanvas').mousedown(function(e){
 
