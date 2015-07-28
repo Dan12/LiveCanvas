@@ -13,4 +13,8 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require proccessImg
+//= require functions
+//= require colorSimp
+//= require imgcomb
 //= require canvas

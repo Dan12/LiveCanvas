@@ -4,14 +4,15 @@ $(".canvas").ready(function(){
   
   var c = document.getElementById("myCanvas");
   var canvas = c.getContext("2d");
+  var tempElem = document.getElementById("tempCanvas");
 
   var d = new Date();
   
   var imgPath = $(".data").data("pathToAsset");
   var searchPaths = [];
-  for(var i = 0; i < 3; i++){
+  for(var i = 0; i < 3; i++)
     searchPaths[i] = $(".data").data("pathToAsset"+(i+2));
-  }
+  
   var drawImage = true;
   //console.log(imgPath+"\n"+img2Path);
   
@@ -91,25 +92,69 @@ $(".canvas").ready(function(){
           imgSearch[0].src = jqXHR.responseJSON.imgSearch0;
           imgSearch[1].src = jqXHR.responseJSON.imgSearch1;
           imgSearch[2].src = jqXHR.responseJSON.imgSearch2;
+          imgSearch[0].onload = function(){
+            console.log("Got Here 1");
+            combineImages();
+          }
         },
         error: function(jqXHR, textStatus, errorThrown) {
             alert("Error=" + errorThrown);
         }
     });
-    paint = false;
-    //$(c).hide();
-    //canvas.clear
-    //combine images
-    //img.src = c.toDataURL('image/png');
-    //$(c).show();
   }
+  
+  function combineImages(){
+    paint = false;
+    async(function(){
+      combImgs(imgCanvas,imgSearch[0],c,tempElem);
+    },function(){
+      async(function(){
+        combImgs(imgCanvas,imgSearch[1],c,tempElem);
+      },function(){
+        async(function(){
+          combImgs(imgCanvas,imgSearch[2],c,tempElem);
+        },function(){
+          img.src = c.toDataURL('image/png');
+        });
+      });      
+    });
+//      combImgs(imgCanvas,imgSearch[0],c,tempElem);
+//     imgCanvas.src = c.toDataURL('image/png');
+//     combImgs(imgCanvas.src,imgSearch[1].src,c,tempElem);
+//     imgCanvas.src = c.toDataURL('image/png');
+//     combImgs(imgCanvas.src,imgSearch[2].src,c,tempElem);
+//     imgCanvas.src = c.toDataURL('image/png');
+//     img.src = c.toDataURL('image/png');
+  };
+  
+  function async(your_function, callback) {
+    your_function();
+    setTimeout(function() {
+        callback();
+    }, 1);
+  };
+  
+  $('.combine_button').click(function(){
+    combineImages();
+  });
   
   function imageTimeout(){
     setTimeout(function(){
       getOtherImage();
-      reload();
+      reloadImgs();
     },20000);
   };
+  
+  function reloadImgs(){
+    $('.canvasImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+    for(var i in imgSearch)
+      $('.searchImg'+i).attr("src", "http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
+    setTimeout(function(){
+      $('.canvasImg').attr("src", imgCanvas.src);
+      for(var i in imgSearch)
+        $('.searchImg'+i).attr("src", imgSearch[i].src);
+    },1000);
+  }
   
   $('.clear_button').click(function(){
     canvas.clear;
@@ -139,14 +184,7 @@ $(".canvas").ready(function(){
   });
   
    $('.reload_button').click(function(){
-      $('.canvasImg').attr("src","http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
-      for(var i in imgSearch)
-        $('.searchImg'+i).attr("src", "http://jimpunk.net/Loading/wp-content/uploads/loading18.gif");
-      setTimeout(function(){
-        $('.canvasImg').attr("src", imgCanvas.src);
-        for(var i in imgSearch)
-          $('.searchImg'+i).attr("src", imgSearch[i].src);
-      },1000);
+      reloadImgs();
     });
     
   $('#myCanvas').mousedown(function(e){
